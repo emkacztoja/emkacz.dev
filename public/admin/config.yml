@@ -1,0 +1,78 @@
+backend:
+  name: git-gateway
+  branch: main
+
+# Media and asset storage
+media_folder: "public/images/uploads"
+public_folder: "/images/uploads"
+
+# Editorial workflow (draft → review → published)
+publish_mode: editorial_workflow
+
+# Markdown frontmatter format
+frontent_delimiter: "---"
+
+collections:
+  - name: "projects"
+    label: "Projects"
+    label_singular: "Project"
+    folder: "src/content/projects/"
+    create: true
+    slug: "{{slug}}"
+    preview_path: ""
+    fields:
+      - { label: Title, name: title, widget: string }
+      - label: Summary
+        name: summary
+        widget: text
+        required: false
+      - label: Description
+        name: description
+        widget: text
+        required: false
+      - label: Tech Stack
+        name: stack
+        widget: list
+        required: false
+        field: { label: Technology, name: tech, widget: string }
+      - { label: Role, name: role, widget: string, required: false }
+      - { label: Year, name: year, widget: number, value_type: int, min: 2000, max: 2030 }
+      - label: Status
+        name: status
+        widget: select
+        options:
+          - { label: Shipped, value: shipped }
+          - { label: In Progress, value: in-progress }
+          - { label: Archived, value: archived }
+      - label: Card Size
+        name: size
+        widget: select
+        default: sm
+        options:
+          - { label: Large (2×2), value: lg }
+          - { label: Medium (2×1), value: md }
+          - { label: Small (1×1), value: sm }
+      - { label: Featured, name: featured, widget: boolean, default: false }
+      - label: Accent Gradient
+        name: accent
+        widget: select
+        default: violet
+        required: false
+        options:
+          - { label: Violet → Pink, value: violet }
+          - { label: Cyan → Indigo, value: cyan }
+          - { label: Amber → Rose, value: amber }
+          - { label: Rose → Violet, value: rose }
+      - label: Links
+        name: links
+        widget: object
+        required: false
+        fields:
+          - { label: Live URL, name: live, widget: string, required: false }
+          - { label: Repo / Source URL, name: repo, widget: string, required: false }
+          - { label: Docs URL, name: docs, widget: string, required: false }
+      - label: Body
+        name: body
+        widget: markdown
+        required: false
+        hint: "Optional long-form write-up. Not shown on the homepage but useful for project detail pages."

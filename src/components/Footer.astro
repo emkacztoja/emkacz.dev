@@ -13,12 +13,14 @@ const year = new Date().getFullYear();
       <span>© {year} {profile.domain}</span>
     </div>
 
-    <p class="font-mono text-xs text-mist">
-      built with <span class="text-fog">astro</span>
+    <div class="flex items-center gap-4 font-mono text-xs text-mist">
+      <a href="/admin" class="text-fog transition-colors hover:text-paper" target="_blank">cms</a>
+      <span>built with</span>
+      <span class="text-fog">astro</span>
       {' · '}
       <span class="text-fog">tailwind</span>
       {' · '}
       <span class="text-fog">motion</span>
-    </p>
+    </div>
   </div>
 </footer>
