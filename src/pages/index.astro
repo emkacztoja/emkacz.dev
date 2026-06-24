@@ -1,0 +1,94 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Nav from '../components/Nav.astro';
+import Hero from '../components/Hero.astro';
+import Projects from '../components/Projects.astro';
+import About from '../components/About.astro';
+import Contact from '../components/Contact.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<Layout>
+  <Nav />
+  <main class="relative z-10">
+    <Hero />
+    <Projects />
+    <About />
+    <Contact />
+  </main>
+  <Footer />
+</Layout>
+
+<script>
+  // ────────────────────────────────────────────────────────────
+  //  Scroll reveal — toggles `.is-in` on `.reveal` elements
+  // ────────────────────────────────────────────────────────────
+  function initReveal() {
+    const els = document.querySelectorAll<HTMLElement>('.reveal');
+    if (!('IntersectionObserver' in window) || els.length === 0) {
+      els.forEach((el) => el.classList.add('is-in'));
+      return;
+    }
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-in');
+            io.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.12, rootMargin: '0px 0px -8% 0px' },
+    );
+    els.forEach((el) => io.observe(el));
+  }
+
+  // ────────────────────────────────────────────────────────────
+  //  Magnetic buttons — elements with [data-magnetic] get a
+  //  cursor-pulled hover effect.
+  // ────────────────────────────────────────────────────────────
+  function initMagnetic() {
+    if (!window.matchMedia('(hover: hover)').matches) return;
+
+    const buttons = document.querySelectorAll<HTMLElement>('[data-magnetic]');
+    buttons.forEach((btn) => {
+      let raf: number | null = null;
+      let tx = 0, ty = 0, x = 0, y = 0;
+      const strength = 0.3; // 0 = none, 1 = full
+
+      const animate = () => {
+        x += (tx - x) * 0.18;
+        y += (ty - y) * 0.18;
+        btn.style.transform = `translate(${x.toFixed(2)}px, ${y.toFixed(2)}px)`;
+        if (Math.abs(tx - x) > 0.1 || Math.abs(ty - y) > 0.1) {
+          raf = requestAnimationFrame(animate);
+        } else {
+          raf = null;
+        }
+      };
+
+      btn.addEventListener('pointermove', (e) => {
+        const r = btn.getBoundingClientRect();
+        tx = (e.clientX - (r.left + r.width / 2)) * strength;
+        ty = (e.clientY - (r.top + r.height / 2)) * strength;
+        if (raf == null) raf = requestAnimationFrame(animate);
+      });
+
+      const reset = () => {
+        tx = 0;
+        ty = 0;
+        if (raf == null) raf = requestAnimationFrame(animate);
+      };
+      btn.addEventListener('pointerleave', reset);
+      btn.addEventListener('blur', reset);
+    });
+  }
+
+  function initAll() {
+    initReveal();
+    initMagnetic();
+  }
+
+  initAll();
+  document.addEventListener('astro:after-swap', initAll);
+</script>

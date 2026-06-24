@@ -1,0 +1,172 @@
+---
+import { getCollection, type CollectionEntry } from 'astro:content';
+
+type Project = CollectionEntry<'projects'>;
+
+const allProjects = await getCollection('projects');
+const featuredProjects = allProjects
+  .filter((p) => p.data.featured)
+  // Big cards first, then medium, then small — stable ordering
+  .sort((a, b) => {
+    const order = { lg: 0, md: 1, sm: 2 } as const;
+    return order[a.data.size] - order[b.data.size] || b.data.year - a.data.year;
+  });
+
+const accentGradient: Record<NonNullable<Project['data']['accent']>, string> = {
+  violet: 'linear-gradient(135deg, rgba(168,85,247,0.35) 0%, rgba(236,72,153,0.35) 100%)',
+  cyan: 'linear-gradient(135deg, rgba(34,211,238,0.32) 0%, rgba(99,102,241,0.32) 100%)',
+  amber: 'linear-gradient(135deg, rgba(251,191,36,0.32) 0%, rgba(244,114,182,0.32) 100%)',
+  rose: 'linear-gradient(135deg, rgba(244,114,182,0.32) 0%, rgba(168,85,247,0.32) 100%)',
+};
+
+const statusStyles: Record<Project['data']['status'], { dot: string; label: string; tone: string }> = {
+  shipped: { dot: 'bg-emerald-400', label: 'shipped', tone: 'text-emerald-300/80' },
+  'in-progress': { dot: 'bg-amber-400', label: 'in progress', tone: 'text-amber-300/80' },
+  archived: { dot: 'bg-fog', label: 'archived', tone: 'text-fog' },
+};
+
+// Bento: lg = 2x2, md = 2x1, sm = 1x1
+const sizeClass: Record<Project['data']['size'], string> = {
+  lg: 'md:col-span-2 md:row-span-2',
+  md: 'md:col-span-2 md:row-span-1',
+  sm: 'md:col-span-1 md:row-span-1',
+};
+---
+
+<section id="projects" class="relative py-24 sm:py-32">
+  <div class="mx-auto max-w-6xl px-6 sm:px-8">
+    <!-- Heading -->
+    <div class="reveal mb-12 flex items-end justify-between gap-6">
+      <div>
+        <p class="font-mono text-xs uppercase tracking-[0.2em] text-fog">
+          <span class="text-accent">01.</span> Selected work
+        </p>
+        <h2 class="mt-3 text-4xl font-semibold tracking-tight sm:text-5xl">
+          Things I've <span class="gradient-text">built</span>.
+        </h2>
+      </div>
+      <a
+        href={featuredProjects[0]?.data.links.repo ?? '#'}
+        target="_blank"
+        rel="noopener"
+        class="hidden shrink-0 items-center gap-1.5 text-sm text-fog transition-colors hover:text-paper sm:inline-flex"
+      >
+        GitHub
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M7 17 17 7M7 7h10v10" />
+        </svg>
+      </a>
+    </div>
+
+    <!-- Bento grid -->
+    <div
+      class="stagger grid auto-rows-[minmax(180px,auto)] grid-cols-1 gap-4 md:grid-cols-4 md:gap-5"
+    >
+      {
+        featuredProjects.map((p, i) => {
+          const d = p.data;
+          const grad = (d.accent ?? 'violet') in accentGradient
+            ? accentGradient[(d.accent ?? 'violet') as keyof typeof accentGradient]
+            : accentGradient.violet;
+          const stat = statusStyles[d.status];
+          return (
+            <article
+              class={`reveal group relative isolate flex flex-col overflow-hidden rounded-3xl border border-line bg-white/[0.015] p-6 transition-all duration-500 hover:-translate-y-1 hover:border-line-strong hover:bg-white/[0.025] ${sizeClass[d.size]}`}
+              style={`transition-delay: ${i * 80}ms;`}
+            >
+              <!-- Gradient halo on hover -->
+              <span
+                aria-hidden="true"
+                class="pointer-events-none absolute -inset-px -z-10 rounded-3xl opacity-0 transition-opacity duration-700 group-hover:opacity-100"
+                style={`background: ${grad}; filter: blur(32px);`}
+              ></span>
+
+              <!-- Top row -->
+              <header class="flex items-start justify-between gap-3">
+                <div class="flex items-center gap-2 text-[12px]">
+                  <span class={`inline-block h-1.5 w-1.5 rounded-full ${stat.dot}`}></span>
+                  <span class={`font-mono uppercase tracking-wider ${stat.tone}`}>
+                    {stat.label}
+                  </span>
+                </div>
+                <span class="font-mono text-xs text-mist">{d.year}</span>
+              </header>
+
+              <!-- Title -->
+              <div class="mt-4 flex-1">
+                <h3
+                  class={`font-semibold tracking-tight ${d.size === 'lg' ? 'text-3xl sm:text-4xl' : 'text-xl sm:text-2xl'}`}
+                >
+                  {d.title}
+                </h3>
+                <p class="mt-2 max-w-prose text-[15px] leading-relaxed text-fog">
+                  {d.size === 'lg' ? d.description : d.summary}
+                </p>
+              </div>
+
+              <!-- Stack -->
+              <ul class="mt-5 flex flex-wrap gap-1.5">
+                {
+                  d.stack.map((s) => (
+                    <li class="rounded-full border border-line bg-white/[0.02] px-2.5 py-0.5 font-mono text-[11px] text-fog">
+                      {s}
+                    </li>
+                  ))
+                }
+              </ul>
+
+              <!-- Footer links -->
+              <footer class="mt-6 flex items-center gap-4 border-t border-line pt-4">
+                {
+                  d.links.live && (
+                    <a
+                      href={d.links.live}
+                      target="_blank"
+                      rel="noopener"
+                      class="magnetic inline-flex items-center gap-1 text-[13px] font-medium text-paper transition-colors hover:text-accent"
+                      data-magnetic
+                    >
+                      Live
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M7 17 17 7M7 7h10v10" />
+                      </svg>
+                    </a>
+                  )
+                }
+                {
+                  d.links.repo && (
+                    <a
+                      href={d.links.repo}
+                      target="_blank"
+                      rel="noopener"
+                      class="magnetic inline-flex items-center gap-1 text-[13px] font-medium text-fog transition-colors hover:text-paper"
+                      data-magnetic
+                    >
+                      Source
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M7 17 17 7M7 7h10v10" />
+                      </svg>
+                    </a>
+                  )
+                }
+                {
+                  d.links.docs && (
+                    <a
+                      href={d.links.docs}
+                      target="_blank"
+                      rel="noopener"
+                      class="magnetic inline-flex items-center gap-1 text-[13px] font-medium text-fog transition-colors hover:text-paper"
+                      data-magnetic
+                    >
+                      Docs
+                    </a>
+                  )
+                }
+              </footer>
+            </article>
+          );
+        })
+      }
+    </div>
+  </div>
+</section>

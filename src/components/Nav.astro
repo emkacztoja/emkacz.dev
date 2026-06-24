@@ -1,0 +1,144 @@
+---
+import { profile } from '../data/profile';
+
+const links = [
+  { href: '#projects', label: 'Projects' },
+  { href: '#about', label: 'About' },
+  { href: '#contact', label: 'Contact' },
+];
+---
+
+<header
+  class="fixed inset-x-0 top-0 z-40 transition-all duration-500"
+  data-nav
+>
+  <div
+    class="mx-auto flex max-w-6xl items-center justify-between px-6 py-5 transition-all duration-500 sm:px-8"
+    data-nav-inner
+  >
+    <a
+      href="#top"
+      class="group inline-flex items-center gap-2 text-sm font-medium tracking-tight text-paper transition-colors"
+      aria-label={`${profile.name} — home`}
+    >
+      <span
+        class="inline-block h-2 w-2 rounded-full bg-accent transition-transform duration-500 group-hover:scale-150"
+        style="background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-2) 100%);"
+      ></span>
+      <span class="font-mono text-[13px]">{profile.name}<span class="text-fog">.dev</span></span>
+    </a>
+
+    <nav class="hidden items-center gap-1 sm:flex">
+      {
+        links.map((l) => (
+          <a
+            href={l.href}
+            class="rounded-full px-3 py-1.5 text-[13px] text-fog transition-colors hover:text-paper"
+          >
+            {l.label}
+          </a>
+        ))
+      }
+      <a
+        href={profile.socials.email}
+        class="magnetic ml-2 inline-flex items-center gap-1.5 rounded-full border border-line px-3.5 py-1.5 text-[13px] font-medium text-paper transition-colors hover:border-line-strong hover:bg-white/[0.03]"
+        data-magnetic
+      >
+        <span class="relative flex h-1.5 w-1.5">
+          <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60"></span>
+          <span class="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400"></span>
+        </span>
+        Available
+      </a>
+    </nav>
+
+    <button
+      class="inline-flex items-center justify-center rounded-full border border-line p-2 text-paper sm:hidden"
+      aria-label="Open menu"
+      data-mobile-toggle
+    >
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="3" y1="6" x2="21" y2="6" />
+        <line x1="3" y1="12" x2="21" y2="12" />
+        <line x1="3" y1="18" x2="21" y2="18" />
+      </svg>
+    </button>
+  </div>
+
+  <!-- Mobile sheet -->
+  <div
+    class="hidden flex-col gap-1 border-t border-line bg-ink/90 px-6 py-4 backdrop-blur-xl sm:hidden"
+    data-mobile-menu
+  >
+    {
+      links.map((l) => (
+        <a
+          href={l.href}
+          class="block rounded-md px-2 py-2 text-[15px] text-fog transition-colors hover:bg-white/[0.04] hover:text-paper"
+        >
+          {l.label}
+        </a>
+      ))
+    }
+    <a
+      href={profile.socials.email}
+      class="mt-2 block rounded-md border border-line px-2 py-2 text-[15px] text-paper"
+    >
+      Get in touch
+    </a>
+  </div>
+</header>
+
+<script>
+  function initNav() {
+    const nav = document.querySelector('[data-nav]') as HTMLElement | null;
+    const inner = document.querySelector('[data-nav-inner]') as HTMLElement | null;
+    if (!nav || !inner) return;
+
+    let ticking = false;
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        const y = window.scrollY;
+        if (y > 24) {
+          nav.classList.add('is-scrolled');
+          inner.classList.add('!py-3');
+          inner.classList.add('!bg-ink/70');
+          inner.classList.add('backdrop-blur-xl');
+          inner.classList.add('border-b');
+          inner.classList.add('border-line');
+        } else {
+          nav.classList.remove('is-scrolled');
+          inner.classList.remove('!py-3');
+          inner.classList.remove('!bg-ink/70');
+          inner.classList.remove('backdrop-blur-xl');
+          inner.classList.remove('border-b');
+          inner.classList.remove('border-line');
+        }
+        ticking = false;
+      });
+    };
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+
+    // Mobile menu
+    const toggle = document.querySelector('[data-mobile-toggle]');
+    const menu = document.querySelector('[data-mobile-menu]');
+    if (toggle && menu) {
+      toggle.addEventListener('click', () => {
+        menu.classList.toggle('hidden');
+        menu.classList.toggle('flex');
+      });
+      menu.querySelectorAll('a').forEach((a) =>
+        a.addEventListener('click', () => {
+          menu.classList.add('hidden');
+          menu.classList.remove('flex');
+        }),
+      );
+    }
+  }
+
+  initNav();
+  document.addEventListener('astro:after-swap', initNav);
+</script>

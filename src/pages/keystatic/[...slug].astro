@@ -1,0 +1,9 @@
+---
+import Keystatic from '@keystatic/astro';
+
+// Keystatic is an interactive SPA — it must run server-rendered so the
+// client bundle can hydrate properly. Public pages stay prerendered.
+export const prerender = false;
+---
+
+<Keystatic />

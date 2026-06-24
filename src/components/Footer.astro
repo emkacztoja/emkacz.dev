@@ -1,0 +1,24 @@
+---
+import { profile } from '../data/profile';
+const year = new Date().getFullYear();
+---
+
+<footer class="relative border-t border-line py-10">
+  <div class="mx-auto flex max-w-6xl flex-col items-start justify-between gap-4 px-6 sm:flex-row sm:items-center sm:px-8">
+    <div class="flex items-center gap-2 font-mono text-xs text-fog">
+      <span
+        class="inline-block h-1.5 w-1.5 rounded-full"
+        style="background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-2) 100%);"
+      ></span>
+      <span>© {year} {profile.domain}</span>
+    </div>
+
+    <p class="font-mono text-xs text-mist">
+      built with <span class="text-fog">astro</span>
+      {' · '}
+      <span class="text-fog">tailwind</span>
+      {' · '}
+      <span class="text-fog">motion</span>
+    </p>
+  </div>
+</footer>

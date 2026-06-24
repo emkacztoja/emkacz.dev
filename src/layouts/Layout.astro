@@ -1,0 +1,58 @@
+---
+import { ClientRouter } from 'astro:transitions';
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = 'emkacz.dev — coder portfolio',
+  description = 'emkacz — coder, builder, problem solver. Projects, about, and contact.',
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="theme-color" content="#0a0a0a" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="description" content={description} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <title>{title}</title>
+    <ClientRouter />
+  </head>
+  <body class="min-h-screen antialiased">
+    <div class="ambient-glow" id="ambient-glow" aria-hidden="true"></div>
+    <slot />
+
+    <script>
+      // Ambient cursor glow — only on devices that hover
+      const glow = document.getElementById('ambient-glow');
+      if (glow && window.matchMedia('(hover: hover)').matches) {
+        let raf: number | null = null;
+        let tx = 50, ty = 50, x = 50, y = 50;
+        document.addEventListener('pointermove', (e) => {
+          tx = (e.clientX / window.innerWidth) * 100;
+          ty = (e.clientY / window.innerHeight) * 100;
+          if (raf == null) {
+            raf = requestAnimationFrame(function tick() {
+              x += (tx - x) * 0.08;
+              y += (ty - y) * 0.08;
+              glow.style.setProperty('--mx', x + '%');
+              glow.style.setProperty('--my', y + '%');
+              raf = requestAnimationFrame(tick);
+            });
+          }
+        });
+      }
+    </script>
+  </body>
+</html>
