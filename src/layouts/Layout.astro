@@ -8,8 +8,8 @@ interface Props {
 }
 
 const {
-  title = 'emkacz.dev — coder portfolio',
-  description = 'emkacz — coder, builder, problem solver. Projects, about, and contact.',
+  title = 'emkacz.dev - coder portfolio',
+  description = 'emkacz - coder, builder, problem solver. Projects, about, and contact.',
 } = Astro.props;
 ---
 
@@ -34,7 +34,7 @@ const {
     <slot />
 
     <script>
-      // Ambient cursor glow — only on devices that hover
+      // Ambient cursor glow - only on devices that hover
       const glow = document.getElementById('ambient-glow');
       if (glow && window.matchMedia('(hover: hover)').matches) {
         let raf: number | null = null;

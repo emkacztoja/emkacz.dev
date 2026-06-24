@@ -1,7 +1,7 @@
 ---
 title: SWSK Launcher Website
 summary: Minecraft launcher website for SWSK community
-description: Minecraft launcher website for the SWSK community — product page, download center, and announcements.
+description: Minecraft launcher website for the SWSK community - product page, download center, and announcements.
 stack:
   - Web Development
   - Minecraft

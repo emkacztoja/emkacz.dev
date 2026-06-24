@@ -6,7 +6,7 @@ type Project = CollectionEntry<'projects'>;
 const allProjects = await getCollection('projects');
 const featuredProjects = allProjects
   .filter((p) => p.data.featured)
-  // Big cards first, then medium, then small — stable ordering
+  // Big cards first, then medium, then small - stable ordering
   .sort((a, b) => {
     const order = { lg: 0, md: 1, sm: 2 } as const;
     return order[a.data.size] - order[b.data.size] || b.data.year - a.data.year;
