@@ -1,0 +1,108 @@
+---
+// src/pages/admin.astro
+---
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Content Manager — emkacz.dev</title>
+  </head>
+  <body>
+    <!-- Target container for Decap CMS to isolate it from Astro's dev/HMR scripts -->
+    <div id="nc-root"></div>
+
+    <script is:inline>
+      // Tell Decap to wait for manual initialization BEFORE loading the main script
+      window.CMS_MANUAL_INIT = true;
+    </script>
+
+    <script is:inline src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
+
+    <script is:inline>
+      CMS.init({
+        config: {
+          backend: {
+            name: 'git-gateway',
+            branch: 'main',
+          },
+          local_backend: true,
+          media_folder: 'public/images/uploads',
+          public_folder: '/images/uploads',
+          publish_mode: 'editorial_workflow',
+          collections: [
+            {
+              name: 'projects',
+              label: 'Projects',
+              label_singular: 'Project',
+              folder: 'src/content/projects/',
+              create: true,
+              slug: '{{slug}}',
+              fields: [
+                { label: 'Title', name: 'title', widget: 'string' },
+                { label: 'Summary', name: 'summary', widget: 'text', required: false },
+                { label: 'Description', name: 'description', widget: 'text', required: false },
+                {
+                  label: 'Tech Stack',
+                  name: 'stack',
+                  widget: 'list',
+                  required: false,
+                  field: { label: 'Technology', name: 'tech', widget: 'string' },
+                },
+                { label: 'Role', name: 'role', widget: 'string', required: false },
+                { label: 'Year', name: 'year', widget: 'number', value_type: 'int', min: 2000, max: 2030 },
+                {
+                  label: 'Status',
+                  name: 'status',
+                  widget: 'select',
+                  options: [
+                    { label: 'Shipped', value: 'shipped' },
+                    { label: 'In Progress', value: 'in-progress' },
+                    { label: 'Archived', value: 'archived' },
+                  ],
+                },
+                {
+                  label: 'Card Size',
+                  name: 'size',
+                  widget: 'select',
+                  default: 'sm',
+                  options: [
+                    { label: 'Large (2×2)', value: 'lg' },
+                    { label: 'Medium (2×1)', value: 'md' },
+                    { label: 'Small (1×1)', value: 'sm' },
+                  ],
+                },
+                { label: 'Featured', name: 'featured', widget: 'boolean', default: false },
+                {
+                  label: 'Accent Gradient',
+                  name: 'accent',
+                  widget: 'select',
+                  default: 'violet',
+                  required: false,
+                  options: [
+                    { label: 'Violet → Pink', value: 'violet' },
+                    { label: 'Cyan → Indigo', value: 'cyan' },
+                    { label: 'Amber → Rose', value: 'amber' },
+                    { label: 'Rose → Violet', value: 'rose' },
+                  ],
+                },
+                {
+                  label: 'Links',
+                  name: 'links',
+                  widget: 'object',
+                  required: false,
+                  fields: [
+                    { label: 'Live URL', name: 'live', widget: 'string', required: false },
+                    { label: 'Repo / Source URL', name: 'repo', widget: 'string', required: false },
+                    { label: 'Docs URL', name: 'docs', widget: 'string', required: false },
+                  ],
+                },
+                { label: 'Body', name: 'body', widget: 'markdown', required: false },
+              ],
+            },
+          ],
+        },
+      });
+    </script>
+  </body>
+</html>

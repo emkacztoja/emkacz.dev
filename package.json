@@ -4,8 +4,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "astro dev",
-    "start": "astro dev",
+    "dev": "concurrently \"astro dev\" \"npx decap-server\"",
+    "start": "concurrently \"astro dev\" \"npx decap-server\"",
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro"
@@ -20,5 +20,8 @@
     "motion": "^12.18.1",
     "tailwindcss": "^4.1.10",
     "typescript": "^5.7.2"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.3"
   }
 }
