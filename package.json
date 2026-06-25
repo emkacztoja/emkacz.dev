@@ -7,11 +7,14 @@
     "dev": "concurrently \"astro dev\" \"npx decap-server\"",
     "start": "concurrently \"astro dev\" \"npx decap-server\"",
     "build": "astro build",
-    "preview": "astro preview",
-    "astro": "astro"
+    "preview": "npm run build && wrangler dev",
+    "astro": "astro",
+    "deploy": "npm run build && wrangler deploy",
+    "cf-typegen": "wrangler types"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.4",
+    "@astrojs/cloudflare": "12",
     "@fontsource-variable/geist": "^5.2.5",
     "@fontsource-variable/geist-mono": "^5.2.5",
     "@tailwindcss/vite": "^4.1.10",
@@ -23,6 +26,7 @@
     "typescript": "^5.7.2"
   },
   "devDependencies": {
-    "concurrently": "^10.0.3"
+    "concurrently": "^10.0.3",
+    "wrangler": "^4.104.0"
   }
 }
