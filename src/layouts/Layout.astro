@@ -31,7 +31,19 @@ const {
   </head>
   <body class="min-h-screen antialiased">
     <div class="ambient-glow" id="ambient-glow" aria-hidden="true"></div>
+    <div class="scroll-progress" data-scroll-progress aria-hidden="true"></div>
     <slot />
+
+    <button
+      type="button"
+      class="back-to-top"
+      data-back-to-top
+      aria-label="Back to top"
+    >
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M12 19V5M5 12l7-7 7 7" />
+      </svg>
+    </button>
 
     <script>
       // Ambient cursor glow - only on devices that hover

@@ -73,10 +73,12 @@ const sizeClass: Record<Project['data']['size'], string> = {
             <article
               class={`reveal group relative isolate flex flex-col overflow-hidden rounded-3xl border border-line bg-white/[0.015] p-6 transition-all duration-500 hover:-translate-y-1 hover:border-line-strong hover:bg-white/[0.025] ${sizeClass[d.size]}`}
               style={`transition-delay: ${i * 80}ms;`}
+              data-spotlight
             >
               <!-- Gradient halo on hover -->
               <span
                 aria-hidden="true"
+                data-spotlight-halo
                 class="pointer-events-none absolute -inset-px -z-10 rounded-3xl opacity-0 transition-opacity duration-700 group-hover:opacity-100"
                 style={`background: ${grad}; filter: blur(32px);`}
               ></span>

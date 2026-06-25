@@ -84,11 +84,155 @@ import Footer from '../components/Footer.astro';
     });
   }
 
+  // ────────────────────────────────────────────────────────────
+  //  Bento card spotlight - tracks the pointer inside each
+  //  [data-spotlight] card and updates --mx/--my for the
+  //  radial gradient overlay in CSS.
+  // ────────────────────────────────────────────────────────────
+  function initSpotlight() {
+    if (!window.matchMedia('(hover: hover)').matches) return;
+    const cards = document.querySelectorAll<HTMLElement>('[data-spotlight]');
+    cards.forEach((card) => {
+      card.addEventListener('pointermove', (e) => {
+        const r = card.getBoundingClientRect();
+        card.style.setProperty('--mx', `${e.clientX - r.left}px`);
+        card.style.setProperty('--my', `${e.clientY - r.top}px`);
+      });
+    });
+  }
+
+  // ────────────────────────────────────────────────────────────
+  //  Count-up - animates numeric highlights (8+ → 0→8+, 200k → 0→200k)
+  //  when they enter the viewport.
+  // ────────────────────────────────────────────────────────────
+  function initCountUp() {
+    const els = document.querySelectorAll<HTMLElement>('[data-countup]');
+    if (!els.length) return;
+
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const animate = (el: HTMLElement) => {
+      const target = parseFloat(el.dataset.countup ?? '0');
+      const suffix = el.dataset.countupSuffix ?? '';
+      if (!Number.isFinite(target)) return;
+
+      if (prefersReduced) {
+        el.textContent = `${target}${suffix}`;
+        return;
+      }
+
+      const duration = 1400;
+      const start = performance.now();
+      const tick = (now: number) => {
+        const t = Math.min(1, (now - start) / duration);
+        // easeOutCubic
+        const eased = 1 - Math.pow(1 - t, 3);
+        const value = Math.floor(eased * target);
+        el.textContent = `${value}${suffix}`;
+        if (t < 1) requestAnimationFrame(tick);
+        else el.textContent = `${target}${suffix}`;
+      };
+      requestAnimationFrame(tick);
+    };
+
+    if (!('IntersectionObserver' in window) || prefersReduced) {
+      els.forEach(animate);
+      return;
+    }
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) {
+            animate(e.target as HTMLElement);
+            io.unobserve(e.target);
+          }
+        }
+      },
+      { threshold: 0.4 },
+    );
+    els.forEach((el) => io.observe(el));
+  }
+
+  // ────────────────────────────────────────────────────────────
+  //  Lenis - buttery smooth scroll. Drives the progress bar,
+  //  back-to-top visibility, and hero blob parallax.
+  //  Skipped entirely when the user prefers reduced motion.
+  // ────────────────────────────────────────────────────────────
+  let lenisInstance: any = null;
+  let lenisRaf: number | null = null;
+
+  async function initLenis() {
+    destroyLenis();
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    const { default: Lenis } = await import('lenis');
+    const lenis = new Lenis({
+      duration: 1.15,
+      easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      smoothWheel: true,
+    });
+    lenisInstance = lenis;
+    document.documentElement.classList.add('lenis');
+
+    const progress = document.querySelector<HTMLElement>('[data-scroll-progress]');
+    const backToTop = document.querySelector<HTMLElement>('[data-back-to-top]');
+    const parallaxEls = document.querySelectorAll<HTMLElement>('[data-parallax]');
+
+    lenis.on('scroll', (e: any) => {
+      if (progress) progress.style.transform = `scaleX(${e.progress})`;
+      if (backToTop) {
+        if (e.scroll > window.innerHeight * 0.6) backToTop.classList.add('is-visible');
+        else backToTop.classList.remove('is-visible');
+      }
+      parallaxEls.forEach((el) => {
+        const factor = parseFloat(el.dataset.parallax ?? '0');
+        if (Number.isFinite(factor) && factor !== 0) {
+          el.style.transform = `translate3d(0, ${e.scroll * factor}px, 0)`;
+        }
+      });
+    });
+
+    if (backToTop) {
+      backToTop.addEventListener('click', () => {
+        lenis.scrollTo(0, { duration: 1.4 });
+      });
+    }
+
+    const loop = (time: number) => {
+      lenis.raf(time);
+      lenisRaf = requestAnimationFrame(loop);
+    };
+    lenisRaf = requestAnimationFrame(loop);
+  }
+
+  function destroyLenis() {
+    if (lenisRaf != null) cancelAnimationFrame(lenisRaf);
+    lenisRaf = null;
+    if (lenisInstance && typeof lenisInstance.destroy === 'function') {
+      lenisInstance.destroy();
+    }
+    lenisInstance = null;
+    document.documentElement.classList.remove('lenis');
+    // Reset any parallax we applied
+    document.querySelectorAll<HTMLElement>('[data-parallax]').forEach((el) => {
+      el.style.transform = '';
+    });
+  }
+
   function initAll() {
     initReveal();
     initMagnetic();
+    initSpotlight();
+    initCountUp();
   }
 
   initAll();
+  // Lenis is async-loaded; init it separately so it doesn't block paint
+  initLenis();
+
+  document.addEventListener('astro:before-swap', destroyLenis);
   document.addEventListener('astro:after-swap', initAll);
+  document.addEventListener('astro:after-swap', initLenis);
 </script>

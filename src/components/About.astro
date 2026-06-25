@@ -5,10 +5,10 @@ import { profile } from '../data/profile';
 const marqueeItems = [...profile.stack, ...profile.stack];
 
 const highlights = [
-  { label: 'Years building', value: '8+' },
-  { label: 'Open-source repos', value: '40+' },
+  { label: 'Years building', value: '8+', count: 8, suffix: '+' },
+  { label: 'Open-source repos', value: '40+', count: 40, suffix: '+' },
   { label: 'Coffee this week', value: '∞' },
-  { label: 'Lines committed', value: '200k' },
+  { label: 'Lines committed', value: '200k', count: 200, suffix: 'k' },
 ];
 ---
 
@@ -55,7 +55,16 @@ const highlights = [
                   {h.label}
                 </dt>
                 <dd class="mt-1 text-2xl font-semibold tracking-tight">
-                  {h.value}
+                  {h.count != null ? (
+                    <span
+                      data-countup={h.count}
+                      data-countup-suffix={h.suffix ?? ''}
+                    >
+                      0{h.suffix ?? ''}
+                    </span>
+                  ) : (
+                    <span>{h.value}</span>
+                  )}
                 </dd>
               </div>
             ))

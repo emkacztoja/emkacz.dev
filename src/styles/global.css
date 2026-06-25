@@ -31,11 +31,30 @@ html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+  /* Fallback for browsers without Lenis (or when reduced-motion is on) */
+  scroll-behavior: smooth;
+  /* Anchor jumps land below the fixed nav */
+  scroll-padding-top: 96px;
 }
 
 body {
   background: var(--color-ink);
   overflow-x: hidden;
+}
+
+/* Lenis-managed html - cancels its own scroll-behavior so the two don't fight */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
 }
 
 ::selection {
@@ -135,19 +154,139 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .reveal,
   .hero-rise,
-  .gradient-text {
+  .gradient-text,
+  .marquee-track,
+  .scroll-progress {
     animation: none !important;
     transition: none !important;
     opacity: 1 !important;
     transform: none !important;
   }
   .ambient-glow { display: none; }
+  .back-to-top { display: none; }
+  html { scroll-behavior: auto; }
 }
 
 /* Magnetic helper - JS toggles transform */
 .magnetic {
   transition: transform 350ms var(--ease-out-quart);
   will-change: transform;
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   Scroll progress bar (Lenis) - fixed at top, fills L->R as you scroll
+   ────────────────────────────────────────────────────────────────── */
+.scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  z-index: 60;
+  transform-origin: 0 50%;
+  transform: scaleX(0);
+  background: linear-gradient(90deg, var(--color-accent) 0%, var(--color-accent-2) 100%);
+  pointer-events: none;
+  will-change: transform;
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   Bento card spotlight - cursor-following radial gradient overlay
+   ────────────────────────────────────────────────────────────────── */
+[data-spotlight] {
+  position: relative;
+}
+[data-spotlight]::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    420px circle at var(--mx, 50%) var(--my, 50%),
+    color-mix(in oklab, var(--color-accent) 14%, transparent),
+    transparent 55%
+  );
+  opacity: 0;
+  transition: opacity 500ms var(--ease-out-quart);
+  pointer-events: none;
+  z-index: 0;
+  mix-blend-mode: screen;
+}
+[data-spotlight]:hover::after {
+  opacity: 1;
+}
+/* Make real content sit above the spotlight. The halo span is
+   excluded so its absolute positioning stays intact. */
+[data-spotlight] > *:not([data-spotlight-halo]) {
+  position: relative;
+  z-index: 1;
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   Nav active section indicator - slides between links
+   ────────────────────────────────────────────────────────────────── */
+[data-nav-link] {
+  position: relative;
+}
+[data-nav-link]::after {
+  content: '';
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 4px;
+  height: 1px;
+  background: var(--color-paper);
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  transition: transform 400ms var(--ease-out-quart);
+}
+[data-nav-link].is-active::after,
+[data-nav-link]:hover::after {
+  transform: scaleX(1);
+}
+[data-nav-link].is-active {
+  color: var(--color-paper);
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   Back-to-top button - fades in past hero
+   ────────────────────────────────────────────────────────────────── */
+.back-to-top {
+  position: fixed;
+  right: 1.5rem;
+  bottom: 1.5rem;
+  z-index: 50;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 9999px;
+  border: 1px solid var(--color-line);
+  background: color-mix(in oklab, var(--color-ink) 80%, transparent);
+  color: var(--color-paper);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  opacity: 0;
+  transform: translateY(8px) scale(0.95);
+  pointer-events: none;
+  transition:
+    opacity 400ms var(--ease-out-quart),
+    transform 400ms var(--ease-out-quart),
+    border-color 300ms var(--ease-out-quart),
+    background 300ms var(--ease-out-quart);
+}
+.back-to-top.is-visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+.back-to-top:hover {
+  border-color: var(--color-line-strong);
+  background: color-mix(in oklab, var(--color-ink) 90%, transparent);
+}
+@media (max-width: 640px) {
+  .back-to-top { right: 1rem; bottom: 1rem; width: 40px; height: 40px; }
 }
 
 /* Marquee for tech stack */
